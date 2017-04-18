@@ -155,8 +155,9 @@ sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,ret
 sudo apt-get install git -y
 sudo apt-get install python-pip -y
 sudo pip install Faker
-echo 'export id_Sales={id_Sales}' >> ~/.profile
-source ~/.profile
+#echo 'export id_Sales={id_Sales}' >> ~/.profile
+#source ~/.profile
+echo '{id_Sales}' > ~/id_file
 #git clone https://github.com/ereimanclarity/datagen.git
 (crontab -l 2>/dev/null; echo "* * * * * python /efs/datagen/dummy_data_gen.py -dt Sales -d '/efs/dummydata' -c 3000000 ") | crontab -
 
@@ -179,7 +180,7 @@ def return_public_ip(instance_filter = 'all'):
 	return out
 	
 ##############################################################################
-#MAIN
+# MAIN
 ##############################################################################
 
 def main():
