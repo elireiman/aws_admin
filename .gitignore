@@ -1,0 +1,4 @@
+*.pyc
+*.log
+aws_instance_setup.sh
+parameters.py
