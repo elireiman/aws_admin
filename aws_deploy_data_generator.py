@@ -9,7 +9,7 @@ OVERVIEW:  This script does the following to deploy and configure a data generat
 -- downloads the data gen repo from github
 -- configures it with a cron job to execute data generator code (writes files to /efs/dummydata)
 
-EXAMPLE FOR parameter.py:
+EXAMPLE FOR parameters.py:
 params = {
 	,'region_name': 'us-west-2'
 	,'config_key': 'linux003'
@@ -159,7 +159,7 @@ sudo pip install Faker
 #source ~/.profile
 echo '{id_Sales}' > ~/id_file
 #git clone https://github.com/ereimanclarity/datagen.git
-(crontab -l 2>/dev/null; echo "* * * * * python /efs/datagen/dummy_data_gen.py -dt Sales -d '/efs/dummydata' -c 3000000 ") | crontab -
+(crontab -l 2>/dev/null; echo "* * * * * python /efs/datagen/dummy_data_gen.py -dt Sales -d '/efs/dummydata' -c 1000000 -sd  -idf ~/id_file") | crontab -
 
 '''.format(id_Sales=id_Sales,efs=efs)
 	with open(bash_file, 'w') as f:
