@@ -1,6 +1,7 @@
 import boto3, uuid, os, argparse, sys, time, random, parameters
 from types import FunctionType
 """
+v20170419a
 OVERVIEW:  This script does the following to deploy and configure a data generator
 -- deploys an aws instance w/ security group
 -- adds tags to instance
@@ -188,17 +189,13 @@ def main():
 	print 'Creating instance:--------'
 	instance = ec2_create_instances('linux003', AllocateNewAddress = False, gb_list=None)
 	instance_id = instance[0].instance_id
-	#instance_id = 'i-0cf6f93df92564201'
 	print 'instance_id: {instance_id}'.format(instance_id=instance_id)
 	ip = return_public_ip(instance_id)[0]
-	#ip='54.148.138.1'
 	print 'IP: {ip}'.format(ip=ip)
 	print 'Writing shell script to file: {bash_file}'.format(bash_file=bash_file)
 	create_shell_script(bash_file)
 	print 'Executing shell script-----'
 	run_remote_command(user, ip, pem_file, bash_file)
-	#ip = return_public_ip('i-00ab08520f677d7b2')
-	#ec2_instances_print(detail=1,status_group='all',instance_filter='i-00ab08520f677d7b2')
 
 if (__name__ == '__main__'):
     main()

@@ -11,7 +11,16 @@ segmented by hash(order_id) all nodes ksafe 1
 PARTITION BY date_trunc('month',transaction_date)::date
 ;
 
-
--- copy sales from local 'sales_20170412213835' direct;
-
-
+create table  if not exists customer
+(
+customer_id int not null
+, first_name varchar(1111)
+, last_name varchar(1111)
+, credit_card varchar(1111)
+, zip varchar(10)
+, phone_number varchar(1111)
+, date_joined datetime
+)
+ORDER BY customer_id
+segmented by hash(customer_id) all nodes ksafe 1
+;

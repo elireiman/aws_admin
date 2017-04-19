@@ -3,9 +3,12 @@ v20170419a
 Example:
 
 python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity' -df True
-python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df y -m 2
-nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df y -m 25 &
+python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df n -m 2
+nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df y -m 250 &
 
+#files to process:
+ls -l /efs/dummydata/complete | wc -l
+mv /efs/dummydata/complete/in_process/S* /efs/dummydata/complete
 '''
 
 import argparse
