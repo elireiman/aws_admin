@@ -1,8 +1,10 @@
 '''
-v20170418a
+v20170418b
 Example:
 
 python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity' -df True
+python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df True -m 2
+nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df True -m 25 &
 
 '''
 
@@ -24,7 +26,7 @@ def get_command_line_arguments():
 	#REQUIRED ARGUMENTS:  -d (directory), -w (vsql_password)
 	parser.add_argument("-d", "--directory", help="Directory containing files")
 	parser.add_argument("-cd", "--child_directory", help="Child directory containing files while processing", default='in_process')
-	parser.add_argument("-df", "--delete_file_after_load", help="Delete file after loaded?", default=False)
+	parser.add_argument("-df", "--delete_file_after_load", help="Delete file after loaded?", default=True)
 	parser.add_argument("-m", "--max_number_of_files_to_process", help="Maximum # of files to process in this run", default=10)
 	parser.add_argument("-u", "--vsql_user", help="vsql_user", default='dbadmin')
 	parser.add_argument("-w", "--vsql_pwd", help="vsql_pwd")
@@ -56,6 +58,7 @@ def list_files_to_process(directory,child_directory='in_process',max_number_of_f
 					, file
 					, table_name
 					))
+				print('I:{}'.format(i))
 				if i==max_number_of_files_to_process:
 					break
 				i+=1
@@ -81,7 +84,10 @@ def load_data(files_to_process,vsql_user,vsql_pwd,delete_file_after_load):
 		except:
 			print 'ERROR - did not load successfully'
 		if delete_file_after_load:
-			os.remove(file)
+			try:
+				os.remove(directory_and_file)
+			except:
+				print "Unexpected error - load_data:", sys.exc_info()[0]
 
 
 def main():
@@ -98,30 +104,3 @@ def main():
 if (__name__ == '__main__'):
     main()
 
-
-"""
-#REFACTOR THIOS:::::::::::::::::::::
-delete_after_loaded = True
-vsql_user = 'dbadmin'
-
-vsql_pwd = 'clarity'
-file_types = ['sales','customer','product']
-delete_file_after_load = True
-
-files = os.listdir(".")
-for file in files:
-	file_base = re.match(r'(^[a-zA-Z]+)',file)
-	if file_base and file_base.group(0) in file_types:
-		table_name = file_base.group(0)
-		dat=time.strftime("%Y-%m-%d %H:%M:%S")
-		print '{dat} - Loading file {file_to_load}'.format(file_to_load=file,dat=dat)
-		sql = 'copy {table_name} from local \'{file}\' direct;'.format(table_name=table_name,file=file)
-		os_cmd = '/opt/vertica/bin/vsql -U {vsql_user} -w {vsql_pwd} -c "{sql}"'.format(vsql_user=vsql_user,vsql_pwd=vsql_pwd,sql=sql)
-		try:
-			#print os_cmd
-			os.system(os_cmd)
-		except:
-			print 'ERROR - did not load successfully'
-		if delete_file_after_load:
-			os.remove(file)
-"""
