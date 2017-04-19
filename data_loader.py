@@ -1,7 +1,8 @@
 '''
+v20170418a
 Example:
 
-python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity'
+python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity' -df True
 
 '''
 
@@ -50,19 +51,21 @@ def list_files_to_process(directory,child_directory='in_process',max_number_of_f
 				src = os.path.join(directory,file)
 				dest = os.path.join(directory,child_directory,file)
 				os.rename(src, dest)
-				files_to_process.append(
+				files_to_process.append((
 					os.path.join(directory,child_directory)
 					, file
 					, table_name
-					)
+					))
 				if i==max_number_of_files_to_process:
 					break
 				i+=1
 			except:
 				print("Error: list_files_to_process - could not move file")
+				print "Unexpected error:", sys.exc_info()[0]
+				raise
 	return files_to_process
 
-def load_data(files_to_process):
+def load_data(files_to_process,vsql_user,vsql_pwd,delete_file_after_load):
 	for file_tuple in files_to_process:
 		directory = file_tuple[0]
 		file = file_tuple[1]
@@ -71,10 +74,10 @@ def load_data(files_to_process):
 		dat=time.strftime("%Y-%m-%d %H:%M:%S")
 		print '{dat} - Loading file {directory_and_file}'.format(directory_and_file=directory_and_file,dat=dat)
 		sql = 'copy {table_name} from local \'{directory_and_file}\' direct;'.format(table_name=table_name,directory_and_file=directory_and_file)
-		os_cmd = '/opt/vertica/bin/vsql -U {vsql_user} -w {vsql_pwd} -c "{sql}"'.format(vsql_user=args.vsql_user,vsql_pwd=args.vsql_pwd,sql=sql)
+		os_cmd = '/opt/vertica/bin/vsql -U {vsql_user} -w {vsql_pwd} -c "{sql}"'.format(vsql_user=vsql_user,vsql_pwd=vsql_pwd,sql=sql)
 		try:
 			print os_cmd
-			#os.system(os_cmd)
+			os.system(os_cmd)
 		except:
 			print 'ERROR - did not load successfully'
 		if delete_file_after_load:
@@ -89,7 +92,8 @@ def main():
 		,child_directory=args.child_directory
 		,max_number_of_files_to_process=args.max_number_of_files_to_process
 		)
-	print files_to_process
+	load_data(files_to_process,args.vsql_user,args.vsql_pwd,args.delete_file_after_load)
+		
 
 if (__name__ == '__main__'):
     main()
