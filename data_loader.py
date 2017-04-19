@@ -3,7 +3,7 @@ v20170418b
 Example:
 
 python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity' -df True
-python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df True -m 2
+python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df False -m 2
 nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df True -m 25 &
 
 '''
@@ -46,6 +46,8 @@ def list_files_to_process(directory,child_directory='in_process',max_number_of_f
 	i=1
 	files = os.listdir(directory)
 	for file in files:
+		if i>=max_number_of_files_to_process:
+			break
 		file_base = re.match(r'(^[a-zA-Z]+)',file)
 		if file_base and file_base.group(0) in file_types:
 			table_name = file_base.group(0)
@@ -59,8 +61,6 @@ def list_files_to_process(directory,child_directory='in_process',max_number_of_f
 					, table_name
 					))
 				print('I:{}'.format(i))
-				if i==max_number_of_files_to_process:
-					break
 				i+=1
 			except:
 				print("Error: list_files_to_process - could not move file")
