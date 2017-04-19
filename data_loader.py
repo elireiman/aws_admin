@@ -1,13 +1,12 @@
 '''
-v20170418b
+v20170419a
 Example:
 
 python /Users/ereiman/github/aws_admin/data_loader.py -d '/Users/ereiman/tmp/complete' -w 'clarity' -df True
-python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df False -m 2
-nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df True -m 25 &
+python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df y -m 2
+nohup python /efs/aws_admin/data_loader.py -d '/efs/dummydata/complete' -w 'clarity' -df y -m 25 &
 
 '''
-
 
 import argparse
 from datetime import datetime
@@ -26,8 +25,8 @@ def get_command_line_arguments():
 	#REQUIRED ARGUMENTS:  -d (directory), -w (vsql_password)
 	parser.add_argument("-d", "--directory", help="Directory containing files")
 	parser.add_argument("-cd", "--child_directory", help="Child directory containing files while processing", default='in_process')
-	parser.add_argument("-df", "--delete_file_after_load", help="Delete file after loaded?", default=True)
-	parser.add_argument("-m", "--max_number_of_files_to_process", help="Maximum # of files to process in this run", default=10)
+	parser.add_argument("-df", "--delete_file_after_load", help="Delete file after loaded?  (y/n)", default='n')
+	parser.add_argument("-m", "--max_number_of_files_to_process", help="Maximum # of files to process in this run", default=10, type=int)
 	parser.add_argument("-u", "--vsql_user", help="vsql_user", default='dbadmin')
 	parser.add_argument("-w", "--vsql_pwd", help="vsql_pwd")
 	args = parser.parse_args()
@@ -42,11 +41,12 @@ def create_subdirectory_for_processing(directory,child_directory='in_process'):
 			print("Error: create_subdirectory_for_processing")
 
 def list_files_to_process(directory,child_directory='in_process',max_number_of_files_to_process=10):
+	print('Max files to process: {}'.format(max_number_of_files_to_process))
 	files_to_process = []
 	i=1
 	files = os.listdir(directory)
 	for file in files:
-		if i>=max_number_of_files_to_process:
+		if i > int(max_number_of_files_to_process):
 			break
 		file_base = re.match(r'(^[a-zA-Z]+)',file)
 		if file_base and file_base.group(0) in file_types:
@@ -60,7 +60,6 @@ def list_files_to_process(directory,child_directory='in_process',max_number_of_f
 					, file
 					, table_name
 					))
-				print('I:{}'.format(i))
 				i+=1
 			except:
 				print("Error: list_files_to_process - could not move file")
@@ -83,7 +82,7 @@ def load_data(files_to_process,vsql_user,vsql_pwd,delete_file_after_load):
 			os.system(os_cmd)
 		except:
 			print 'ERROR - did not load successfully'
-		if delete_file_after_load:
+		if delete_file_after_load == 'y':
 			try:
 				os.remove(directory_and_file)
 			except:
